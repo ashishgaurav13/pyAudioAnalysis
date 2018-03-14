@@ -418,7 +418,12 @@ def trainHMM_fromDir(dirPath, hmmModelName, mtWin, mtStep):
 
 
 def hmmSegmentation(wavFileName, hmmModelName, PLOT=False, gtFileName=""):
-    [Fs, x] = audioBasicIO.readAudioFile(wavFileName)          # read audio data
+    if wavFileName is str:
+        [Fs, x] = audioBasicIO.readAudioFile(wavFileName)        # load input file
+    else:
+        Fs = 44100
+        x = wavFileName
+    x = audioBasicIO.stereo2mono(x)
 
     try:
         fo = open(hmmModelName, "rb")
@@ -501,7 +506,12 @@ def mtFileClassification(inputFile, modelName, modelType, plotResults=False, gtF
     if computeBEAT:
         print "Model " + modelName + " contains long-term music features (beat etc) and cannot be used in segmentation"
         return (-1, -1, -1, -1)
-    [Fs, x] = audioBasicIO.readAudioFile(inputFile)        # load input file
+    # if inputFile is not a string, I passed in the actual data, use that
+    if inputFile is str:
+        [Fs, x] = audioBasicIO.readAudioFile(inputFile)        # load input file
+    else:
+        Fs = 44100
+        x = inputFile
     if Fs == -1:                                           # could not read file
         return (-1, -1, -1, -1)
     x = audioBasicIO.stereo2mono(x)                        # convert stereo (if) to mono
